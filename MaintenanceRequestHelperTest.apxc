@@ -1,0 +1,11 @@
+@isTest
+public with sharing class MaintenanceRequestHelperTest {
+    // implement scheduled code here
+    @isTest
+    static void testMaintenanceRequestHelper() {
+        List<Case> caseList = new List<Case>();
+        for() {
+            
+        }
+    }
+}

@@ -1,0 +1,17 @@
+public with sharing class MaintenanceRequestHelper {
+    
+    public static void updateWorkOrders(Map<Id, Case> caseMap) {
+        // TODO: Complete the method to update workorders
+        Map<Id, Integer>  = new Map<Id, Integer>();
+        
+        for(Case c : caseMap.values()) {
+            Case tempCase = new Case();
+            tempCase.Vehicle__c = c.Vehicle__c;
+            tempCase.Type = 'Routine Maintenance';
+            tempCase.Subject = 'Routine Maintenance';
+            tempCase.Date_Reported__c = Date.today();
+            tempCase.Date_Due__c = ;
+        }
+    }        
+    
+}
