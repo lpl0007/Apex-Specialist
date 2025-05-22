@@ -1,0 +1,44 @@
+public with sharing class WarehouseCalloutService implements Queueable {
+    public class WarehouseEquipmentVariables{
+        // _id
+        // replacement
+        public Integer quantity;
+        // name
+        public Integer maintenanceCycle;
+        public Integer lifespan;
+        public Decimal cost;
+        public String sku;
+    }
+
+    private static final String WAREHOUSE_URL = 'https://th-superbadge-apex.herokuapp.com/equipment';
+    @Future(callout=true)
+    public static void runWarehouseEquipmentSync(){
+        Http http = new Http();
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint(WAREHOUSE_URL);
+        request.setMethod('GET');
+        HttpResponse response = http.send(request);
+
+        if (response.getStatusCode() == 200) {
+            List<WarehouseEquipmentVariables> warehouseEquipmentList = 
+                (List<WarehouseEquipmentVariables>) JSON.deserialize(response.getBody(), List<WarehouseEquipmentVariables>.class);
+
+            List<Product2> equipmentList = new List<Product2>();
+            for (WarehouseEquipmentVariables test : warehouseEquipmentList) {
+                Product2 equip = new Product2();
+                equip.Replacement_Part__c = true;
+                equip.Current_Inventory__c = test.quantity;
+                equip.Maintenance_Cycle__c = test.maintenanceCycle;
+                equip.Lifespan_Months__c = test.lifespan;
+                equip.Cost__c = test.cost;
+                equip.Warehouse_SKU__c = test.sku;
+                equipmentList.add(equip);
+            }
+            upsert equipmentList Product2.Warehouse_SKU__c;
+        }
+    }
+
+    public static void execute (QueueableContext context){
+        runWarehouseEquipmentSync();
+    }
+}

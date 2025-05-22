@@ -12,6 +12,7 @@ public with sharing class MaintenanceRequestHelper {
         List<Case> caseList = new List<Case>();
         Map<Id, Decimal> maintenanceCycleMap = new Map<Id, Decimal>();
         AggregateResult[] results = [SELECT Maintenance_Request__c, MIN(Equipment__r.Maintenance_Cycle__c)cycle FROM Equipment_Maintenance_Item__c WHERE Maintenance_Request__c IN : idList GROUP BY Maintenance_Request__c];
+        Map<Id, Case> oldToNewCaseMap = new Map<Id, Case>();
         
         for (AggregateResult r : results){ 
             maintenanceCycleMap.put((Id) r.get('Maintenance_Request__c'), (Decimal) r.get('cycle'));
@@ -27,8 +28,23 @@ public with sharing class MaintenanceRequestHelper {
             tempCase.Subject = 'Routine Maintenance';
             tempCase.Date_Reported__c = Date.today();
             tempCase.Date_Due__c = Date.today().addDays((Integer) maintenanceCycleMap.get(c.Id));
+            caseList.add(tempCase);
+            oldToNewCaseMap.put(c.Id, tempCase);
         }
         insert caseList;
+
+        List<Equipment_Maintenance_Item__c> newItemsList = new List<Equipment_Maintenance_Item__c>();
+        for(Case oldCase : closedCaseList.values()) {
+            Case newCase = oldToNewCaseMap.get(oldCase.Id);
+            for(Equipment_Maintenance_Item__c item : oldCase.Equipment_Maintenance_Items__r) {
+                Equipment_Maintenance_Item__c newItem = new Equipment_Maintenance_Item__c();
+                newItem.Maintenance_Request__c = newCase.Id;
+                newItem.Equipment__c = item.Equipment__c;
+                newItem.Quantity__c = item.Quantity__c;
+                newItemsList.add(newItem);
+            }
+        }
+        insert newItemsList;
     }        
     
 }
