@@ -2,10 +2,17 @@
 public with sharing class MaintenanceRequestHelperTest {
     // implement scheduled code here
     @isTest
-    static void testMaintenanceRequestHelper() {
-        List<Case> caseList = new List<Case>();
-        for() {
-            
-        }
+    static void testMaintenanceRequestHelperPositive() {
+        Product2
+    }
+    
+    @isTest
+    static void testMaintenanceRequestHelperNegative() {
+        
+    }
+    
+    @isTest
+    static void testMaintenanceRequestHelperBulk() {
+        
     }
 }

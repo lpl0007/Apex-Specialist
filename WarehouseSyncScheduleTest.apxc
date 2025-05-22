@@ -1,0 +1,8 @@
+@isTest
+public with sharing class WarehouseSyncScheduleTest {
+    // implement scheduled code here
+    @isTest
+    static void testWarehouseSyncSchedule() {
+        
+    }
+}

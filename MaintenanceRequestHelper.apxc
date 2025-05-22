@@ -45,6 +45,5 @@ public with sharing class MaintenanceRequestHelper {
             }
         }
         insert newItemsList;
-    }        
-    
+    }
 }
