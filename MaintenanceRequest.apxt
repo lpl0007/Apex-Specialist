@@ -1,16 +1,6 @@
 trigger MaintenanceRequest on Case (before update, after update) {
     // ToDo: Call MaintenanceRequestHelper.updateWorkOrders
-    Map<Id,Case> caseMap = new Map<Id,Case>();
-    
     if(Trigger.isUpdate && Trigger.isAfter) {
-        for(Case c : Trigger.new) {
-            if(c.IsClosed && (c.Type.equals('Repair') || c.Type.equals('Routine Maintenance'))) {
-                caseMap.put(c.Id, c);
-            }
-        }
-        
-        if(!caseMap.values().isEmpty()) {
-            MaintenanceRequestHelper.updateWorkOrders(caseMap);
-        }
+        MaintenanceRequestHelper.updateWorkOrders(Trigger.New);
     }
 }
