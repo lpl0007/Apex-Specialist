@@ -1,18 +1,54 @@
 @isTest
 public with sharing class MaintenanceRequestHelperTest {
     // implement scheduled code here
-    @isTest
-    static void testMaintenanceRequestHelperPositive() {
-        Product2
+    @TestSetup
+    static void setup(){
+        Product2 test = new Product2(
+            Name = 'Ball Valve 10 cm',
+            Warehouse_SKU__c = '100009',
+            Current_Inventory__c = 50,
+            Maintenance_Cycle__c = 50,
+            Lifespan_Months__c = 10,
+            Replacement_Part__c = true,
+            Cost__c = 100
+        );
+        insert test;
+
+        List<Case> caseList = new List<Case>();
+        for(Integer i = 0; i < 300; i++) {
+            Case c = new Case(
+                Subject = 'Maintenance ' + i,
+                Status = 'New',
+                SuppliedName = 'Test',
+                Type = 'Routine Maintenance'
+            );
+            caseList.add(c);
+        }
+        insert caseList;
+
+        List<Equipment_Maintenance_Item__c> equipmentMaintenanceItemList = new List<Equipment_Maintenance_Item__c>();
+        for(Case c : [select Id, Subject from Case where SuppliedName = 'Test']) {
+            Equipment_Maintenance_Item__c equipmentMaintenanceItem = new Equipment_Maintenance_Item__c();
+            equipmentMaintenanceItem.Maintenance_Request__c = c.Id;
+            equipmentMaintenanceItem.Equipment__c = test.Id;
+            equipmentMaintenanceItemList.add(equipmentMaintenanceItem);
+        }
+        
+        insert equipmentMaintenanceItemList;
     }
     
     @isTest
-    static void testMaintenanceRequestHelperNegative() {
+    static void testMaintenanceRequestHelper() {
+        List<Case> caseList = new List<Case>();
+        for(Case c : [SELECT Id FROM Case WHERE SuppliedName = 'Test']) {
+            c.Type = 'Repair';
+            c.Status = 'Closed';
+            caseList.add(c);
+        }
         
-    }
-    
-    @isTest
-    static void testMaintenanceRequestHelperBulk() {
-        
+        Test.startTest();
+        update caseList;
+        System.assertEquals(300, [SELECT count() FROM Case WHERE Type = 'Routine Maintenance' and Date_Reported__c = :Date.today()]);
+        Test.stopTest();
     }
 }
